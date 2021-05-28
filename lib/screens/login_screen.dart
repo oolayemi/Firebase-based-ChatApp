@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:placeholder/resources/firebase_repository.dart';
-import 'package:placeholder/screens/home_screen.dart';
-import 'package:placeholder/utils/unversal_variables.dart';
+import '../resources/firebase_repository.dart';
+import 'home_screen.dart';
+import '../utils/unversal_variables.dart';
 import 'package:shimmer/shimmer.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -39,17 +39,19 @@ class _LoginScreenState extends State<LoginScreen> {
     return Shimmer.fromColors(
       baseColor: Colors.white,
       highlightColor: UniversalVariables.senderColor,
-      child: FlatButton(
-        child: Text(
-          "LOGIN",
-          style: TextStyle(
-            fontSize: 35,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
+      child: TextButton(
+        child: Container(
+          child: Text(
+            "LOGIN",
+            style: TextStyle(
+              fontSize: 35,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+            ),
           ),
         ),
         onPressed: () => performLogin(),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -61,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
       isLoginPressed = true;
     });
 
-    _repository.signIn().then((User user) {
+    _repository.signIn().then((User? user) {
       if (user != null) {
         authenticateUser(user);
       } else {

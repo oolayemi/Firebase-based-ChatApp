@@ -2,11 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:placeholder/provider/image_upload_provider.dart';
-import 'package:placeholder/resources/firebase_repository.dart';
-import 'package:placeholder/screens/home_screen.dart';
-import 'package:placeholder/screens/login_screen.dart';
-import 'package:placeholder/screens/search_screen.dart';
+
+import '../provider/image_upload_provider.dart';
+import 'resources/firebase_repository.dart';
+import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/search_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -42,7 +43,7 @@ class _MyAppState extends State<MyApp> {
         ),
         home: FutureBuilder(
           future: _repository.getCurrentUser(),
-          builder: (context, AsyncSnapshot<User> snapshot) {
+          builder: (context, AsyncSnapshot<User?> snapshot) {
             if (snapshot.hasData) {
               return HomeScreen();
               // return Dummy();

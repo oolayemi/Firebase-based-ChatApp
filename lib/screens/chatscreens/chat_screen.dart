@@ -9,22 +9,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:placeholder/constants/strings.dart';
-import 'package:placeholder/enum/view_state.dart';
-import 'package:placeholder/models/firebase_user.dart';
-import 'package:placeholder/models/message.dart';
-import 'package:placeholder/provider/image_upload_provider.dart';
-import 'package:placeholder/resources/firebase_repository.dart';
-import 'package:placeholder/screens/chatscreens/widgets/cached_image.dart';
-import 'package:placeholder/screens/chatscreens/widgets/contact_page.dart';
-import 'package:placeholder/utils/unversal_variables.dart';
-import 'package:placeholder/utils/utilities.dart';
-import 'package:placeholder/widgets/appbar.dart';
-import 'package:placeholder/widgets/custom_tile.dart';
+import 'package:placeholder/screens/chatscreens/widgets/voice_record.dart';
+import '../../constants/strings.dart';
+import '../../enum/view_state.dart';
+import '../../models/firebase_user.dart';
+import '../../models/message.dart';
+import '../../provider/image_upload_provider.dart';
+import '../../resources/firebase_repository.dart';
+import '../../screens/chatscreens/widgets/cached_image.dart';
+import '../../screens/chatscreens/widgets/contact_page.dart';
+import '../../utils/unversal_variables.dart';
+import '../../utils/utilities.dart';
+import '../../widgets/appbar.dart';
+import '../../widgets/custom_tile.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
-  final FirebaseUser receiver;
+  final FirebaseUser? receiver;
 
   ChatScreen({
     this.receiver,
@@ -38,16 +39,15 @@ class _ChatScreenState extends State<ChatScreen> {
   TextEditingController textFieldController = TextEditingController();
   FirebaseRepository _repository = FirebaseRepository();
 
-  Iterable<Contact> _contacts;
-  PermissionStatus permissionStatus;
+  PermissionStatus? permissionStatus;
 
   FocusNode textFieldFocus = FocusNode();
 
-  ImageUploadProvider _imageUploadProvider;
+  late ImageUploadProvider _imageUploadProvider;
 
-  FirebaseUser sender;
+  FirebaseUser? sender;
 
-  String _currentUserId;
+  String? _currentUserId;
 
   bool isWriting = false;
 
@@ -58,7 +58,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
 
     _repository.getCurrentUser().then((user) {
-      _currentUserId = user.uid;
+      _currentUserId = user!.uid;
 
       setState(() {
         sender = FirebaseUser(
@@ -142,7 +142,7 @@ class _ChatScreenState extends State<ChatScreen> {
       stream: FirebaseFirestore.instance
           .collection(MESSAGES_COLLECTION)
           .doc(_currentUserId)
-          .collection(widget.receiver.uid)
+          .collection(widget.receiver!.uid!)
           .orderBy(TIMESTAMP_FIELD, descending: true)
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -155,9 +155,9 @@ class _ChatScreenState extends State<ChatScreen> {
         return ListView.builder(
           padding: EdgeInsets.all(10),
           reverse: true,
-          itemCount: snapshot.data.docs.length,
+          itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
-            return chatMessageItem(snapshot.data.docs[index]);
+            return chatMessageItem(snapshot.data!.docs[index]);
           },
         );
       },
@@ -165,18 +165,18 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget chatMessageItem(DocumentSnapshot snapshot) {
-    Message _message = Message.fromMap(snapshot.data());
+    Message _message = Message.fromMap(snapshot.data() as Map<String, dynamic>);
 
     viewImageModal(context, imageUrl, senderId) async {
-      String userIdentity = "Loading...";
+      String? userIdentity = "Loading...";
 
-      if (FirebaseAuth.instance.currentUser.uid == senderId) {
+      if (FirebaseAuth.instance.currentUser!.uid == senderId) {
         setState(() {
           userIdentity = "You";
         });
       } else {
         setState(() {
-          userIdentity = widget.receiver.name;
+          userIdentity = widget.receiver!.name;
         });
       }
       showModalBottomSheet(
@@ -190,7 +190,7 @@ class _ChatScreenState extends State<ChatScreen> {
               appBar: AppBar(
                 elevation: 0,
                 backgroundColor: Colors.transparent,
-                title: Text(userIdentity),
+                title: Text(userIdentity!),
                 actions: [
                   IconButton(
                     onPressed: () {},
@@ -270,11 +270,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   getMessage(Message message) {
     if (message.type == MESSAGE_TYPE_IMAGE) {
-      return message != null
-          ? CachedImage(url: message.photoUrl)
-          : Text("Url not found");
+      return CachedImage(
+        url: message.photoUrl,
+      );
     } else if (message.type == MESSAGE_TYPE_CONTACT) {
-      Contact receivedContact = Contact.fromMap(message.contact);
+      Contact receivedContact = Contact.fromMap(message.contact!);
       //print(receivedContact.toMap());
       return GestureDetector(
         onTap: () => print(message.toContactMap()),
@@ -291,7 +291,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   radius: 26,
                   backgroundColor: Colors.blue,
                   child: Text(
-                    Utils.getInitials(message.contact['displayName']),
+                    Utils.getInitials(message.contact!['displayName']),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -302,7 +302,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   height: 4,
                 ),
                 Text(
-                  message.contact['displayName'].toString(),
+                  message.contact!['displayName'].toString(),
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -374,7 +374,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     } else {
       return Text(
-        message.message,
+        message.message!,
         style: TextStyle(
           color: Colors.white,
           fontSize: 16.0,
@@ -411,7 +411,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     addMediaModal(context) {
-      Contact contact;
+      Contact? contact;
       showModalBottomSheet(
           context: context,
           elevation: 0,
@@ -480,15 +480,15 @@ class _ChatScreenState extends State<ChatScreen> {
                           if (contact != null) {
                             Contact newContact;
                             newContact = Contact(
-                              displayName: contact.displayName,
-                              phones: contact.phones,
+                              displayName: contact!.displayName,
+                              phones: contact!.phones,
                             );
 
-                            print(contact.displayName);
+                            print(contact!.displayName);
                             sendReceivedContact(
                               contact: newContact.toMap(),
-                              senderId: sender.uid,
-                              receiverId: widget.receiver.uid,
+                              senderId: sender!.uid,
+                              receiverId: widget.receiver!.uid,
                             );
                           }
                         },
@@ -586,7 +586,16 @@ class _ChatScreenState extends State<ChatScreen> {
               ? Container()
               : Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(Icons.record_voice_over),
+                  child: IconButton(
+                    icon: Icon(Icons.record_voice_over),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MainBody(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
           isWriting
               ? Container()
@@ -617,8 +626,8 @@ class _ChatScreenState extends State<ChatScreen> {
     var text = textFieldController.text;
 
     Message _message = Message(
-      receiverId: widget.receiver.uid,
-      senderId: sender.uid,
+      receiverId: widget.receiver!.uid,
+      senderId: sender!.uid,
       message: text,
       timestamp: Timestamp.now(),
       type: 'text',
@@ -633,11 +642,11 @@ class _ChatScreenState extends State<ChatScreen> {
     _repository.addMessageToDb(_message, sender, widget.receiver);
   }
 
-  pickImage({@required ImageSource source}) async {
+  pickImage({required ImageSource source}) async {
     File selectedImage = await Utils.pickImage(source: source);
     _repository.uploadImage(
       image: selectedImage,
-      receiverId: widget.receiver.uid,
+      receiverId: widget.receiver!.uid,
       senderId: _currentUserId,
       imageUploadProvider: _imageUploadProvider,
     );
@@ -655,7 +664,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       centerTitle: false,
       title: Text(
-        widget.receiver.name,
+        widget.receiver!.name!,
         style: TextStyle(fontSize: 19),
       ),
       actions: <Widget>[
@@ -676,9 +685,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendReceivedContact({
-    Map<dynamic, dynamic> contact,
-    String receiverId,
-    String senderId,
+    Map<dynamic, dynamic>? contact,
+    String? receiverId,
+    String? senderId,
   }) {
     _repository.sendContact(contact, senderId, receiverId);
   }
@@ -688,12 +697,12 @@ class ModalTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final Function onTap;
+  final Function? onTap;
 
   const ModalTile({
-    @required this.title,
-    @required this.subtitle,
-    @required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
     this.onTap,
   });
 
@@ -703,7 +712,7 @@ class ModalTile extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: CustomTile(
         mini: false,
-        onTap: onTap,
+        onTap: onTap as void Function()?,
         leading: Container(
           margin: EdgeInsets.only(right: 10),
           decoration: BoxDecoration(

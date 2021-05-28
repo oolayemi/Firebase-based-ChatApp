@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:placeholder/resources/firebase_repository.dart';
-import 'package:placeholder/utils/unversal_variables.dart';
-import 'package:placeholder/utils/utilities.dart';
-import 'package:placeholder/widgets/appbar.dart';
-import 'package:placeholder/widgets/custom_tile.dart';
+import '../../resources/firebase_repository.dart';
+import '../../utils/unversal_variables.dart';
+import '../../utils/utilities.dart';
+import '../../widgets/appbar.dart';
+import '../../widgets/custom_tile.dart';
 
 class ChatListScreen extends StatefulWidget {
   @override
@@ -13,16 +13,16 @@ class ChatListScreen extends StatefulWidget {
 final FirebaseRepository _repository = FirebaseRepository();
 
 class _ChatListScreenState extends State<ChatListScreen> {
-  String currentUserId;
-  String initials;
+  String? currentUserId;
+  String? initials;
 
   @override
   void initState() {
     super.initState();
     _repository.getCurrentUser().then((user) {
       setState(() {
-        currentUserId = user.uid;
-        initials = Utils.getInitials(user.displayName);
+        currentUserId = user!.uid;
+        initials = Utils.getInitials(user.displayName!);
       });
     });
   }
@@ -71,7 +71,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
 }
 
 class ChatListContainer extends StatefulWidget {
-  final String currentUserId;
+  final String? currentUserId;
 
   ChatListContainer(this.currentUserId);
 
@@ -138,7 +138,7 @@ class _ChatListContainerState extends State<ChatListContainer> {
 }
 
 class UserCircle extends StatelessWidget {
-  final String text;
+  final String? text;
 
   const UserCircle(this.text);
 
@@ -155,7 +155,7 @@ class UserCircle extends StatelessWidget {
           Align(
             alignment: Alignment.center,
             child: Text(
-              text != null ? text : "",
+              text != null ? text! : "",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: UniversalVariables.lightBlueColor,

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:placeholder/utils/unversal_variables.dart';
+import '../utils/unversal_variables.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget title;
@@ -9,11 +9,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool centerTitle;
 
   const CustomAppBar({
-    Key key,
-    @required this.title,
-    @required this.actions,
-    @required this.leading,
-    @required this.centerTitle,
+    Key? key,
+    required this.title,
+    required this.actions,
+    required this.leading,
+    required this.centerTitle,
   }) : super(key: key);
 
   @override

@@ -1,34 +1,34 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:placeholder/constants/strings.dart';
-import 'package:placeholder/models/firebase_user.dart';
-import 'package:placeholder/models/message.dart';
-import 'package:placeholder/provider/image_upload_provider.dart';
-import 'package:placeholder/utils/utilities.dart';
+import '../../constants/strings.dart';
+import '../../models/firebase_user.dart';
+import '../../models/message.dart';
+import '../../provider/image_upload_provider.dart';
+import '../../utils/utilities.dart';
 
 class FirebaseMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = GoogleSignIn();
   static final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Reference _storageReference;
+  late Reference _storageReference;
 
   FirebaseUser user = FirebaseUser();
 
-  Future<User> getCurrentUser() async {
-    User currentUser;
-    currentUser = await _auth.currentUser;
+  Future<User?> getCurrentUser() async {
+    User? currentUser;
+    currentUser = _auth.currentUser;
 
     return currentUser;
   }
 
-  Future<User> signIn() async {
-    GoogleSignInAccount _signInAccount = await _googleSignIn.signIn();
+  Future<User?> signIn() async {
+    GoogleSignInAccount _signInAccount = await (_googleSignIn.signIn() as FutureOr<GoogleSignInAccount>);
     GoogleSignInAuthentication _signInAuthentication =
         await _signInAccount.authentication;
     final AuthCredential credential = GoogleAuthProvider.credential(
@@ -54,7 +54,7 @@ class FirebaseMethods {
   }
 
   Future<void> addDataToDb(User currentUser) async {
-    String username = Utils.getUsername(currentUser.email);
+    String username = Utils.getUsername(currentUser.email!);
     user = FirebaseUser(
       uid: currentUser.uid,
       email: currentUser.email,
@@ -66,7 +66,7 @@ class FirebaseMethods {
     firestore
         .collection(USERS_COLLECTION)
         .doc(currentUser.uid)
-        .set(user.toMap(user));
+        .set(user.toMap(user) as Map<String, dynamic>);
   }
 
   Future<void> signOut() async {
@@ -75,37 +75,37 @@ class FirebaseMethods {
     return await _auth.signOut();
   }
 
-  Future<List<FirebaseUser>> fetchAllUsers(User currentUser) async {
-    List<FirebaseUser> userList = List<FirebaseUser>();
+  Future<List<FirebaseUser>> fetchAllUsers(User? currentUser) async {
+    List<FirebaseUser> userList = <FirebaseUser>[];
     QuerySnapshot querySnapshot =
         await firestore.collection(USERS_COLLECTION).get();
 
     for (var i = 0; i < querySnapshot.docs.length; i++) {
-      if (querySnapshot.docs[i].id != currentUser.uid) {
-        userList.add(FirebaseUser.fromMap(querySnapshot.docs[i].data()));
+      if (querySnapshot.docs[i].id != currentUser!.uid) {
+        userList.add(FirebaseUser.fromMap(querySnapshot.docs[i].data() as Map<String, dynamic>));
       }
     }
 
     return userList;
   }
 
-  Future<void> addMessageToDb(
-      Message message, FirebaseUser sender, FirebaseUser receiver) async {
+  Future<DocumentReference<Map<String, dynamic>>> addMessageToDb(
+      Message message, FirebaseUser? sender, FirebaseUser? receiver) async {
     var map = message.toMap();
     await firestore
         .collection(MESSAGES_COLLECTION)
         .doc(message.senderId)
-        .collection(message.receiverId)
-        .add(map);
+        .collection(message.receiverId!)
+        .add(map as Map<String, dynamic>);
 
     return await firestore
         .collection(MESSAGES_COLLECTION)
         .doc(message.receiverId)
-        .collection(message.senderId)
+        .collection(message.senderId!)
         .add(map);
   }
 
-  Future<String> uploadImageToStorage(File image) async {
+  Future<String?> uploadImageToStorage(File image) async {
     try {
       _storageReference = FirebaseStorage.instance
           .ref()
@@ -123,7 +123,7 @@ class FirebaseMethods {
   }
 
   void sendContact(
-      Map<dynamic, dynamic> contact, String senderId, String receiverId) async {
+      Map<dynamic, dynamic>? contact, String? senderId, String? receiverId) async {
     Message _message;
 
     _message = Message.contactMessage(
@@ -141,17 +141,17 @@ class FirebaseMethods {
     await firestore
         .collection(MESSAGES_COLLECTION)
         .doc(_message.senderId)
-        .collection(_message.receiverId)
-        .add(map);
+        .collection(_message.receiverId!)
+        .add(map as Map<String, dynamic>);
 
     await firestore
         .collection(MESSAGES_COLLECTION)
         .doc(_message.receiverId)
-        .collection(_message.senderId)
+        .collection(_message.senderId!)
         .add(map);
   }
 
-  void setImageMsg(String url, String receiverId, String senderId) async {
+  void setImageMsg(String? url, String? receiverId, String? senderId) async {
     Message _message;
 
     _message = Message.imageMessage(
@@ -168,20 +168,20 @@ class FirebaseMethods {
     await firestore
         .collection(MESSAGES_COLLECTION)
         .doc(_message.senderId)
-        .collection(_message.receiverId)
-        .add(map);
+        .collection(_message.receiverId!)
+        .add(map as Map<String, dynamic>);
 
     await firestore
         .collection(MESSAGES_COLLECTION)
         .doc(_message.receiverId)
-        .collection(_message.senderId)
+        .collection(_message.senderId!)
         .add(map);
   }
 
-  void uploadImage(File image, String receiverId, String senderId,
+  void uploadImage(File image, String? receiverId, String? senderId,
       ImageUploadProvider imageUploadProvider) async {
     imageUploadProvider.setToLoading();
-    String url = await uploadImageToStorage(image);
+    String? url = await uploadImageToStorage(image);
 
     imageUploadProvider.setToIdle();
 

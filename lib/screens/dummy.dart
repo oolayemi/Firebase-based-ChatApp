@@ -48,7 +48,7 @@ class AuthForm extends StatefulWidget {
 }
 
 class _AuthFormState extends State<AuthForm> {
-  bool _isCheck = false;
+  bool? _isCheck = false;
   bool _isPasswordVisible = false;
   final snackBar = SnackBar(content: Text('Yay! A SnackBar!'));
   @override

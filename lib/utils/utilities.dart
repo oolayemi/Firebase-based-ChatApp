@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as Im;
 import 'package:path_provider/path_provider.dart';
@@ -20,8 +20,8 @@ class Utils {
     return nameSplit[0][0];
   }
 
-  static Future<File> pickImage({@required ImageSource source}) async {
-    PickedFile selectedImage = await ImagePicker().getImage(source: source);
+  static Future<File> pickImage({required ImageSource source}) async {
+    PickedFile selectedImage = await (ImagePicker().getImage(source: source) as FutureOr<PickedFile>);
     File pickeeed = File(selectedImage.path);
 
     return compressImage(pickeeed);
@@ -33,7 +33,7 @@ class Utils {
 
     int random = Random().nextInt(1000);
 
-    Im.Image image = Im.decodeImage(imageToCompress.readAsBytesSync());
+    Im.Image image = Im.decodeImage(imageToCompress.readAsBytesSync())!;
     Im.copyResize(image, width: 500, height: 500);
 
     return new File('$path/img_$random.jpg')

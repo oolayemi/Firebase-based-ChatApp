@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
-  String senderId;
-  String receiverId;
-  String type;
-  String message;
-  Timestamp timestamp;
-  String photoUrl;
-  Map<dynamic, dynamic> contact;
+  String? senderId;
+  String? receiverId;
+  String? type;
+  String? message;
+  Timestamp? timestamp;
+  String? photoUrl;
+  Map<dynamic, dynamic>? contact;
 
   Message({
     this.senderId,

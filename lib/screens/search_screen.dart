@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:placeholder/models/firebase_user.dart';
-import 'package:placeholder/resources/firebase_repository.dart';
-import 'package:placeholder/utils/unversal_variables.dart';
+import '../models/firebase_user.dart';
+import '../resources/firebase_repository.dart';
+import '../utils/unversal_variables.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:placeholder/widgets/custom_tile.dart';
+import '../widgets/custom_tile.dart';
 
 import 'chatscreens/chat_screen.dart';
 
@@ -16,14 +16,14 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   FirebaseRepository _repository = FirebaseRepository();
 
-  List<FirebaseUser> userList;
+  List<FirebaseUser>? userList;
   String query = "";
   TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _repository.getCurrentUser().then((User user) {
+    _repository.getCurrentUser().then((User? user) {
       _repository.fetchAllUsers(user).then((List<FirebaseUser> list) {
         setState(() {
           userList = list;
@@ -93,10 +93,10 @@ class _SearchScreenState extends State<SearchScreen> {
   buildSuggestions(String query) {
     final List<FirebaseUser> suggestionList = query.isEmpty || userList == null
         ? []
-        : userList.where((FirebaseUser user) {
-            String _getUsername = user.username.toLowerCase();
+        : userList!.where((FirebaseUser user) {
+            String _getUsername = user.username!.toLowerCase();
             String _query = query.toLowerCase();
-            String _getName = user.name.toLowerCase();
+            String _getName = user.name!.toLowerCase();
             bool matchesUsername = _getUsername.contains(_query);
             bool matchesName = _getName.contains(_query);
 
@@ -124,18 +124,18 @@ class _SearchScreenState extends State<SearchScreen> {
                 );
               },
               leading: CircleAvatar(
-                backgroundImage: NetworkImage(searchedUser.profilePhoto),
+                backgroundImage: NetworkImage(searchedUser.profilePhoto!),
                 backgroundColor: Colors.grey,
               ),
               title: Text(
-                searchedUser.username,
+                searchedUser.username!,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               subtitle: Text(
-                searchedUser.name,
+                searchedUser.name!,
                 style: TextStyle(color: UniversalVariables.greyColor),
               ),
             ),

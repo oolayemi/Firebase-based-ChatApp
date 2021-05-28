@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:placeholder/screens/pageviews/chat_list_screen.dart';
-import 'package:placeholder/utils/unversal_variables.dart';
+import 'pageviews/chat_list_screen.dart';
+import '../utils/unversal_variables.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -9,7 +9,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  PageController pageController;
+  PageController? pageController;
   int _page = 0;
 
   @override
@@ -26,12 +26,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void navigationTapped(int page) {
-    pageController.jumpToPage(page);
+    pageController!.jumpToPage(page);
   }
 
   @override
   Widget build(BuildContext context) {
-    double _labelFontSize = 10;
 
     return Scaffold(
       backgroundColor: UniversalVariables.blackColor,
@@ -57,39 +56,41 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: UniversalVariables.blackColor,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.chat,
-                  color: (_page == 0)
-                      ? UniversalVariables.lightBlueColor
-                      : UniversalVariables.greyColor,
-                ),
-                title: Text(
-                  "Chats",
-                  style: TextStyle(
-                    fontSize: _labelFontSize,
+                  icon: Icon(
+                    Icons.chat,
                     color: (_page == 0)
                         ? UniversalVariables.lightBlueColor
-                        : Colors.grey,
+                        : UniversalVariables.greyColor,
                   ),
-                ),
-              ),
+                  label: "Chats"
+                  // Text(
+                  //   "Chats",
+                  //   style: TextStyle(
+                  //     fontSize: _labelFontSize,
+                  //     color: (_page == 0)
+                  //         ? UniversalVariables.lightBlueColor
+                  //         : Colors.grey,
+                  //   ),
+                  // ),
+                  ),
               BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.video_call,
-                  color: (_page == 1)
-                      ? UniversalVariables.lightBlueColor
-                      : UniversalVariables.greyColor,
-                ),
-                title: Text(
-                  "Video Call",
-                  style: TextStyle(
-                    fontSize: _labelFontSize,
+                  icon: Icon(
+                    Icons.video_call,
                     color: (_page == 1)
                         ? UniversalVariables.lightBlueColor
-                        : Colors.grey,
+                        : UniversalVariables.greyColor,
                   ),
-                ),
-              ),
+                  label: "Video Chat"
+                  // Text(
+                  //   "Video Call",
+                  //   style: TextStyle(
+                  //     fontSize: _labelFontSize,
+                  //     color: (_page == 1)
+                  //         ? UniversalVariables.lightBlueColor
+                  //         : Colors.grey,
+                  //   ),
+                  // ),
+                  ),
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.contact_phone,
@@ -97,15 +98,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? UniversalVariables.lightBlueColor
                       : UniversalVariables.greyColor,
                 ),
-                title: Text(
-                  "Contacts",
-                  style: TextStyle(
-                    fontSize: _labelFontSize,
-                    color: (_page == 2)
-                        ? UniversalVariables.lightBlueColor
-                        : Colors.grey,
-                  ),
-                ),
+                label: "Contacts",
+
+                // Text(
+                //   "Contacts",
+                //   style: TextStyle(
+                //     fontSize: _labelFontSize,
+                //     color: (_page == 2)
+                //         ? UniversalVariables.lightBlueColor
+                //         : Colors.grey,
+                //   ),
+                // ),
               ),
             ],
             onTap: navigationTapped,

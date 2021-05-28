@@ -4,7 +4,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ContactsPage extends StatefulWidget {
-  final Contact contact;
+  final Contact? contact;
 
   ContactsPage({this.contact});
 
@@ -13,8 +13,8 @@ class ContactsPage extends StatefulWidget {
 }
 
 class _ContactsPageState extends State<ContactsPage> {
-  Iterable<Contact> _contacts;
-  PermissionStatus permissionStatus;
+  Iterable<Contact>? _contacts;
+  PermissionStatus? permissionStatus;
 
   @override
   void initState() {
@@ -77,14 +77,14 @@ class _ContactsPageState extends State<ContactsPage> {
           ? ListView.builder(
               itemCount: _contacts?.length ?? 0,
               itemBuilder: (BuildContext context, int index) {
-                Contact contact = _contacts?.elementAt(index);
+                Contact? contact = _contacts?.elementAt(index);
                 return ListTile(
                   onTap: () => Navigator.pop(context, contact),
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 2, horizontal: 18),
-                  leading: (contact.avatar != null && contact.avatar.isNotEmpty)
+                  leading: (contact!.avatar != null && contact.avatar!.isNotEmpty)
                       ? CircleAvatar(
-                          backgroundImage: MemoryImage(contact.avatar),
+                          backgroundImage: MemoryImage(contact.avatar!),
                         )
                       : CircleAvatar(
                           child: Text(contact.initials()),
