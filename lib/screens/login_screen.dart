@@ -40,14 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
       baseColor: Colors.white,
       highlightColor: UniversalVariables.senderColor,
       child: TextButton(
-        child: Container(
-          child: Text(
-            "LOGIN",
-            style: TextStyle(
-              fontSize: 35,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.2,
-            ),
+        child: Text(
+          "LOGIN",
+          style: TextStyle(
+            fontSize: 35,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.2,
           ),
         ),
         onPressed: () => performLogin(),
