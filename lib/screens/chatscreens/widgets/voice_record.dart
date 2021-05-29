@@ -132,7 +132,7 @@ class _MainBodyState extends State<MainBody> {
               enabled: false,
               showTitle: true,
               audioFocus: AudioFocus.requestFocusAndDuckOthers,
-            ),
+            )
           ],
         )));
   }

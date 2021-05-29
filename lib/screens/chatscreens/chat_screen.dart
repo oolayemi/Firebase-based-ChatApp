@@ -5,11 +5,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:placeholder/screens/chatscreens/widgets/voice_record.dart';
+import 'package:placeholder/utils/call_utilities.dart';
+import 'package:placeholder/utils/permissions.dart';
 import '../../constants/strings.dart';
 import '../../enum/view_state.dart';
 import '../../models/firebase_user.dart';
@@ -23,6 +27,18 @@ import '../../utils/utilities.dart';
 import '../../widgets/appbar.dart';
 import '../../widgets/custom_tile.dart';
 import 'package:provider/provider.dart';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../../../utils/demos/demo_active_codec.dart';
+import '../../../utils/demos/demo_asset_player.dart';
+import '../../../utils/demos/demo_drop_downs.dart';
+import '../../../utils/demos/recorder_state.dart';
+import '../../../utils/demos/remote_player.dart';
+import '../../../utils/demos/temp_file.dart';
 
 class ChatScreen extends StatefulWidget {
   final FirebaseUser? receiver;
@@ -40,22 +56,42 @@ class _ChatScreenState extends State<ChatScreen> {
   FirebaseRepository _repository = FirebaseRepository();
 
   PermissionStatus? permissionStatus;
-
   FocusNode textFieldFocus = FocusNode();
 
   late ImageUploadProvider _imageUploadProvider;
 
   FirebaseUser? sender;
-
   String? _currentUserId;
 
   bool isWriting = false;
-
   bool showEmojiPicker = false;
+  bool initialized = false;
+
+  String? recordingFile;
+  late Track track;
+
+  bool isTextWidgetShowing = true;
 
   @override
   void initState() {
+    if (!kIsWeb) {
+      var status = Permission.microphone.request();
+      status.then((stat) {
+        if (stat != PermissionStatus.granted) {
+          throw RecordingPermissionException(
+              'Microphone permission not granted');
+        }
+      });
+    }
+
+    init();
+
     super.initState();
+    tempFile(suffix: '.aac').then((path) {
+      recordingFile = path;
+      track = Track(trackPath: recordingFile);
+      setState(() {});
+    });
 
     _repository.getCurrentUser().then((user) {
       _currentUserId = user!.uid;
@@ -68,6 +104,34 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       });
     });
+  }
+
+  Future<bool> init() async {
+    if (!initialized) {
+      await initializeDateFormatting();
+      await UtilRecorder().init();
+      ActiveCodec().recorderModule = UtilRecorder().recorderModule;
+      ActiveCodec().setCodec(withUI: false, codec: Codec.aacADTS);
+
+      initialized = true;
+    }
+    return initialized;
+  }
+
+  void _clean() async {
+    if (recordingFile != null) {
+      try {
+        await File(recordingFile!).delete();
+      } on Exception {
+        // ignore
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _clean();
+    super.dispose();
   }
 
   showKeyboard() => textFieldFocus.requestFocus();
@@ -271,17 +335,27 @@ class _ChatScreenState extends State<ChatScreen> {
   getMessage(Message message) {
     if (message.type == MESSAGE_TYPE_IMAGE) {
       return CachedImage(
-        url: message.photoUrl,
+        message.photoUrl,
       );
     } else if (message.type == MESSAGE_TYPE_CONTACT) {
+      List<String> nameSplit = message.contact!['displayName'].split(" ");
+
+      if (nameSplit.length > 1) {
+        message.contact!['givenName'] = nameSplit[0];
+        message.contact!['familyName'] = nameSplit[1];
+      } else {
+        message.contact!['givenName'] = nameSplit[0];
+        message.contact!['familyName'] = "";
+      }
+
       Contact receivedContact = Contact.fromMap(message.contact!);
-      //print(receivedContact.toMap());
+
       return GestureDetector(
         onTap: () => print(message.toContactMap()),
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.5,
+          width: 160,
           padding: EdgeInsets.only(
-            top: 6,
+            top: 5,
           ),
           child: Center(
             child: Column(
@@ -299,7 +373,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 4,
+                  height: 3,
                 ),
                 Text(
                   message.contact!['displayName'].toString(),
@@ -309,32 +383,42 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 6,
+                  height: 5,
                 ),
-                Divider(
-                  thickness: 1,
-                  color: Colors.grey,
-                ),
-                TextButton(
-                  onPressed: () async {
-                    // try {
-                    //   print(receivedContact.toMap());
-                    //   await ContactsService.addContact(receivedContact)
-                    //       .then((value) => print(value));
-                    // } on FormOperationException catch (e) {
-                    //   switch (e.errorCode) {
-                    //     case FormOperationErrorCode.FORM_COULD_NOT_BE_OPEN:
-                    //     case FormOperationErrorCode.FORM_OPERATION_CANCELED:
-                    //     case FormOperationErrorCode
-                    //         .FORM_OPERATION_UNKNOWN_ERROR:
-                    //       print(e.toString());
-                    //   }
-                    // }
-                  },
-                  child: Text(
-                    'Add Contact',
-                  ),
-                )
+                message.receiverId == _currentUserId
+                    ? Divider(
+                        thickness: 1,
+                        color: Colors.grey,
+                      )
+                    : SizedBox(),
+                message.receiverId == _currentUserId
+                    ? TextButton(
+                        onPressed: () async {
+                          try {
+                            print(receivedContact.toMap());
+                            await [Permission.contacts]
+                                .request()
+                                .then((value) async {
+                              await ContactsService.addContact(receivedContact)
+                                  .then((value) {
+                                print("Contact added successfully");
+                                Fluttertoast.showToast(
+                                  msg: "Contact added successfully💪✅",
+                                  backgroundColor: Colors.green,
+                                  toastLength: Toast.LENGTH_LONG,
+                                  //gravity: ToastGravity.BOTTOM,
+                                );
+                              });
+                            });
+                          } on FormOperationException catch (e) {
+                            print(e.errorCode.toString());
+                          }
+                        },
+                        child: Text(
+                          'Add Contact',
+                        ),
+                      )
+                    : SizedBox()
               ],
             ),
           ),
@@ -523,7 +607,7 @@ class _ChatScreenState extends State<ChatScreen> {
           GestureDetector(
             onTap: () => addMediaModal(context),
             child: Container(
-              padding: EdgeInsets.all(5),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: UniversalVariables.fabGradient,
                 shape: BoxShape.circle,
@@ -532,76 +616,86 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           SizedBox(
-            width: 5,
+            width: 8,
           ),
-          Expanded(
-            child: Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                TextField(
-                  controller: textFieldController,
-                  focusNode: textFieldFocus,
-                  onTap: () => hideEmojiContainer(),
-                  style: TextStyle(color: Colors.white),
-                  onChanged: (val) {
-                    (val.length > 0 && val.trim() != "")
-                        ? setWritingTo(true)
-                        : setWritingTo(false);
-                  },
-                  maxLines: 4,
-                  minLines: 1,
-                  decoration: InputDecoration(
-                    hintText: "Type a message",
-                    hintStyle: TextStyle(color: UniversalVariables.greyColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: EdgeInsets.fromLTRB(10, 5, 37, 5),
-                    fillColor: UniversalVariables.separatorColor,
-                    filled: true,
+          isTextWidgetShowing
+              ? Expanded(
+                  child: Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      TextField(
+                        controller: textFieldController,
+                        focusNode: textFieldFocus,
+                        onTap: () => hideEmojiContainer(),
+                        style: TextStyle(color: Colors.white),
+                        onChanged: (val) {
+                          (val.length > 0 && val.trim() != "")
+                              ? setWritingTo(true)
+                              : setWritingTo(false);
+                        },
+                        maxLines: 4,
+                        minLines: 1,
+                        decoration: InputDecoration(
+                          hintText: "Type a message",
+                          hintStyle:
+                              TextStyle(color: UniversalVariables.greyColor),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(16.0)),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: EdgeInsets.fromLTRB(10, 5, 37, 5),
+                          fillColor: UniversalVariables.separatorColor,
+                          filled: true,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      IconButton(
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        onPressed: () {
+                          if (!showEmojiPicker) {
+                            hideKeyboard();
+                            showEmojiContainer();
+                          } else {
+                            showKeyboard();
+                            hideEmojiContainer();
+                          }
+                        },
+                        icon: Icon(Icons.face),
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(
-                  width: 15,
-                ),
-                IconButton(
-                  highlightColor: Colors.transparent,
-                  splashColor: Colors.transparent,
-                  onPressed: () {
-                    if (!showEmojiPicker) {
-                      hideKeyboard();
-                      showEmojiContainer();
-                    } else {
-                      showKeyboard();
-                      hideEmojiContainer();
-                    }
-                  },
-                  icon: Icon(Icons.face),
-                ),
-              ],
-            ),
-          ),
+                )
+              : Expanded(child: _buildRecorder(track)),
           isWriting
               ? Container()
-              : Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: IconButton(
-                    icon: Icon(Icons.record_voice_over),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => MainBody(),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+              : isTextWidgetShowing
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.record_voice_over,
+                        size: 30,
+                      ),
+                      onPressed: () {
+                        // Navigator.of(context).push(
+                        //     MaterialPageRoute(builder: (context) => MainBody()));
+                        setState(() {
+                          isTextWidgetShowing = !isTextWidgetShowing;
+                        });
+                      },
+                    )
+                  : Container(),
           isWriting
               ? Container()
               : GestureDetector(
                   onTap: () => pickImage(source: ImageSource.camera),
-                  child: Icon(Icons.camera_alt)),
+                  child: Icon(
+                    Icons.camera_alt,
+                    size: 30,
+                  ),
+                ),
           isWriting
               ? Container(
                   margin: EdgeInsets.only(left: 10),
@@ -618,6 +712,31 @@ class _ChatScreenState extends State<ChatScreen> {
                 )
               : Container()
         ],
+      ),
+    );
+  }
+
+  Widget _buildRecorder(Track track) {
+    return Container(
+      padding: EdgeInsets.only(right: 6),
+      child: RecorderPlaybackController(
+        child: Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            SoundRecorderUI(
+              track,
+              showTrashCan: false,
+              pausedTitle: "",
+              stoppedTitle: "",
+              recordingTitle: "",
+            ),
+            IconButton(
+              onPressed: () {},
+              color: UniversalVariables.blackColor,
+              icon: Icon(Icons.keyboard),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -672,7 +791,11 @@ class _ChatScreenState extends State<ChatScreen> {
           icon: Icon(
             Icons.video_call,
           ),
-          onPressed: () {},
+          onPressed: () async =>
+              await Permissions.cameraAndMicrophonePermissionsGranted()
+                  ? CallUtils.dial(
+                      from: sender!, to: widget.receiver!, context: context)
+                  : {},
         ),
         // IconButton(
         //   icon: Icon(

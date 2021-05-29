@@ -69,7 +69,7 @@ class _ContactsPageState extends State<ContactsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: (Text('Select contactt')),
+        title: (Text('Select a contact')),
       ),
       body: _contacts != null
           //Build a list view of all contacts, displaying their avatar and
@@ -82,14 +82,15 @@ class _ContactsPageState extends State<ContactsPage> {
                   onTap: () => Navigator.pop(context, contact),
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 2, horizontal: 18),
-                  leading: (contact!.avatar != null && contact.avatar!.isNotEmpty)
-                      ? CircleAvatar(
-                          backgroundImage: MemoryImage(contact.avatar!),
-                        )
-                      : CircleAvatar(
-                          child: Text(contact.initials()),
-                          backgroundColor: Theme.of(context).accentColor,
-                        ),
+                  leading:
+                      (contact!.avatar != null && contact.avatar!.isNotEmpty)
+                          ? CircleAvatar(
+                              backgroundImage: MemoryImage(contact.avatar!),
+                            )
+                          : CircleAvatar(
+                              child: Text(contact.initials()),
+                              backgroundColor: Theme.of(context).accentColor,
+                            ),
                   title: Text(contact.displayName ?? ''),
                   //This can be further expanded to showing contacts detail
                   // onPressed().

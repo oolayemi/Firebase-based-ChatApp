@@ -20,7 +20,7 @@ class Utils {
     return nameSplit[0][0];
   }
 
-  static Future<File> pickImage({required ImageSource source}) async {
+  static FutureOr<File> pickImage({required ImageSource source}) async {
     PickedFile selectedImage = await (ImagePicker().getImage(source: source) as FutureOr<PickedFile>);
     File pickeeed = File(selectedImage.path);
 

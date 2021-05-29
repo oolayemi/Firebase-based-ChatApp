@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:placeholder/provider/user_provider.dart';
 
 import '../provider/image_upload_provider.dart';
 import 'resources/firebase_repository.dart';
@@ -27,8 +28,11 @@ class _MyAppState extends State<MyApp> {
   FirebaseRepository _repository = FirebaseRepository();
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ImageUploadProvider>(
-      create: (context) => ImageUploadProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ImageUploadProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
       child: MaterialApp(
         title: 'Placeholder',
         debugShowCheckedModeBanner: false,
@@ -36,11 +40,8 @@ class _MyAppState extends State<MyApp> {
         routes: {
           '/search_screen': (context) => SearchScreen(),
         },
-    
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          brightness: Brightness.dark 
-        ),
+        theme:
+            ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
         home: FutureBuilder(
           future: _repository.getCurrentUser(),
           builder: (context, AsyncSnapshot<User?> snapshot) {

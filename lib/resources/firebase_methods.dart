@@ -15,6 +15,8 @@ class FirebaseMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = GoogleSignIn();
   static final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  static final CollectionReference _userCollection =
+      firestore.collection(USERS_COLLECTION);
 
   late Reference _storageReference;
 
@@ -27,8 +29,18 @@ class FirebaseMethods {
     return currentUser;
   }
 
+  Future<FirebaseUser> getUserDetails() async {
+    User? currentUser = await (getCurrentUser());
+
+    DocumentSnapshot documentSnapshot =
+        await _userCollection.doc(currentUser!.uid).get();
+    return FirebaseUser.fromMap(
+        documentSnapshot.data() as Map<String, dynamic>);
+  }
+
   Future<User?> signIn() async {
-    GoogleSignInAccount _signInAccount = await (_googleSignIn.signIn() as FutureOr<GoogleSignInAccount>);
+    GoogleSignInAccount _signInAccount =
+        await (_googleSignIn.signIn() as FutureOr<GoogleSignInAccount>);
     GoogleSignInAuthentication _signInAuthentication =
         await _signInAccount.authentication;
     final AuthCredential credential = GoogleAuthProvider.credential(
@@ -82,7 +94,8 @@ class FirebaseMethods {
 
     for (var i = 0; i < querySnapshot.docs.length; i++) {
       if (querySnapshot.docs[i].id != currentUser!.uid) {
-        userList.add(FirebaseUser.fromMap(querySnapshot.docs[i].data() as Map<String, dynamic>));
+        userList.add(FirebaseUser.fromMap(
+            querySnapshot.docs[i].data() as Map<String, dynamic>));
       }
     }
 
@@ -122,8 +135,8 @@ class FirebaseMethods {
     }
   }
 
-  void sendContact(
-      Map<dynamic, dynamic>? contact, String? senderId, String? receiverId) async {
+  void sendContact(Map<dynamic, dynamic>? contact, String? senderId,
+      String? receiverId) async {
     Message _message;
 
     _message = Message.contactMessage(

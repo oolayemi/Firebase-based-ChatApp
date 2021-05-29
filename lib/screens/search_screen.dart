@@ -116,7 +116,7 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: EdgeInsets.only(top: 7),
             child: CustomTile(
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatScreen(receiver: searchedUser),

@@ -27,6 +27,8 @@ class FirebaseRepository {
           Message message, FirebaseUser? sender, FirebaseUser? receiver) =>
       _firebaseMethods.addMessageToDb(message, sender, receiver);
 
+  Future<FirebaseUser> getUserDetails() => _firebaseMethods.getUserDetails();
+
   void uploadImage(
           {required File image,
           required String? receiverId,
@@ -35,6 +37,7 @@ class FirebaseRepository {
       _firebaseMethods.uploadImage(
           image, receiverId, senderId, imageUploadProvider);
 
-  void sendContact(Map<dynamic, dynamic>? contact, String? senderId, String? receiverId) =>
+  void sendContact(Map<dynamic, dynamic>? contact, String? senderId,
+          String? receiverId) =>
       _firebaseMethods.sendContact(contact, senderId, receiverId);
 }
