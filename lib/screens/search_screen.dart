@@ -78,10 +78,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                 ),
                 border: InputBorder.none,
-                hintText: "Search",
+                hintText: "Search for a friend",
                 hintStyle: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 30,
+                  fontSize: 27,
                   color: Color(0x88ffffff),
                 )),
           ),
@@ -116,7 +116,7 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: EdgeInsets.only(top: 7),
             child: CustomTile(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatScreen(receiver: searchedUser),

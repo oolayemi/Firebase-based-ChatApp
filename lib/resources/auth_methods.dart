@@ -50,10 +50,9 @@ class AuthMethods {
   }
 
   Future<User?> signIn() async {
-    GoogleSignInAccount _signInAccount =
-        await (_googleSignIn.signIn() as FutureOr<GoogleSignInAccount>);
+    GoogleSignInAccount? _signInAccount = await (_googleSignIn.signIn());
     GoogleSignInAuthentication _signInAuthentication =
-        await _signInAccount.authentication;
+        await _signInAccount!.authentication;
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: _signInAuthentication.accessToken,
       idToken: _signInAuthentication.idToken,
@@ -92,10 +91,16 @@ class AuthMethods {
         .set(user.toMap(user) as Map<String, dynamic>);
   }
 
-  Future<void> signOut() async {
-    await _googleSignIn.disconnect();
-    await _googleSignIn.signOut();
-    return await _auth.signOut();
+  Future<bool> signOut() async {
+    try {
+      //await _googleSignIn.disconnect();
+
+      await _googleSignIn.signOut();
+      _auth.signOut();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<List<FirebaseUser>> fetchAllUsers(User? currentUser) async {
@@ -118,7 +123,7 @@ class AuthMethods {
 
     _userCollection.doc(userId).update({"state": stateNum});
   }
- 
+
   Stream<DocumentSnapshot> getUserStream({required String uid}) =>
       _userCollection.doc(uid).snapshots();
 }

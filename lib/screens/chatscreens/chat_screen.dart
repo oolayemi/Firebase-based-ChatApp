@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,7 +13,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:placeholder/resources/auth_methods.dart';
 import 'package:placeholder/resources/chat_methods.dart';
 import 'package:placeholder/resources/storage_methods.dart';
-import 'package:placeholder/screens/chatscreens/widgets/voice_record.dart';
 import 'package:placeholder/utils/call_utilities.dart';
 import 'package:placeholder/utils/permissions.dart';
 import '../../constants/strings.dart';
@@ -29,18 +27,6 @@ import '../../utils/utilities.dart';
 import '../../widgets/appbar.dart';
 import '../../widgets/custom_tile.dart';
 import 'package:provider/provider.dart';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:permission_handler/permission_handler.dart';
-import '../../../utils/demos/demo_active_codec.dart';
-import '../../../utils/demos/demo_asset_player.dart';
-import '../../../utils/demos/demo_drop_downs.dart';
-import '../../../utils/demos/recorder_state.dart';
-import '../../../utils/demos/remote_player.dart';
-import '../../../utils/demos/temp_file.dart';
 
 class ChatScreen extends StatefulWidget {
   final FirebaseUser? receiver;
@@ -71,32 +57,10 @@ class _ChatScreenState extends State<ChatScreen> {
   bool showEmojiPicker = false;
   bool initialized = false;
 
-  String? recordingFile;
-  late Track track;
-
-  bool isTextWidgetShowing = true;
+  // bool isTextWidgetShowing = true;
 
   @override
   void initState() {
-    if (!kIsWeb) {
-      var status = Permission.microphone.request();
-      status.then((stat) {
-        if (stat != PermissionStatus.granted) {
-          throw RecordingPermissionException(
-              'Microphone permission not granted');
-        }
-      });
-    }
-
-    init();
-
-    super.initState();
-    tempFile(suffix: '.aac').then((path) {
-      recordingFile = path;
-      track = Track(trackPath: recordingFile);
-      setState(() {});
-    });
-
     _authMethods.getCurrentUser().then((user) {
       _currentUserId = user!.uid;
 
@@ -108,34 +72,6 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       });
     });
-  }
-
-  Future<bool> init() async {
-    if (!initialized) {
-      await initializeDateFormatting();
-      await UtilRecorder().init();
-      ActiveCodec().recorderModule = UtilRecorder().recorderModule;
-      ActiveCodec().setCodec(withUI: false, codec: Codec.aacADTS);
-
-      initialized = true;
-    }
-    return initialized;
-  }
-
-  void _clean() async {
-    if (recordingFile != null) {
-      try {
-        await File(recordingFile!).delete();
-      } on Exception {
-        // ignore
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _clean();
-    super.dispose();
   }
 
   showKeyboard() => textFieldFocus.requestFocus();
@@ -611,7 +547,7 @@ class _ChatScreenState extends State<ChatScreen> {
           GestureDetector(
             onTap: () => addMediaModal(context),
             child: Container(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
                 gradient: UniversalVariables.fabGradient,
                 shape: BoxShape.circle,
@@ -622,82 +558,75 @@ class _ChatScreenState extends State<ChatScreen> {
           SizedBox(
             width: 8,
           ),
-          isTextWidgetShowing
-              ? Expanded(
-                  child: Stack(
-                    alignment: Alignment.centerRight,
-                    children: [
-                      TextField(
-                        controller: textFieldController,
-                        focusNode: textFieldFocus,
-                        onTap: () => hideEmojiContainer(),
-                        style: TextStyle(color: Colors.white),
-                        onChanged: (val) {
-                          (val.length > 0 && val.trim() != "")
-                              ? setWritingTo(true)
-                              : setWritingTo(false);
-                        },
-                        maxLines: 4,
-                        minLines: 1,
-                        decoration: InputDecoration(
-                          hintText: "Type a message",
-                          hintStyle:
-                              TextStyle(color: UniversalVariables.greyColor),
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(16.0)),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: EdgeInsets.fromLTRB(10, 5, 37, 5),
-                          fillColor: UniversalVariables.separatorColor,
-                          filled: true,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                      IconButton(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        onPressed: () {
-                          if (!showEmojiPicker) {
-                            hideKeyboard();
-                            showEmojiContainer();
-                          } else {
-                            showKeyboard();
-                            hideEmojiContainer();
-                          }
-                        },
-                        icon: Icon(Icons.face),
-                      ),
-                    ],
+          Expanded(
+            child: Stack(
+              alignment: Alignment.centerRight,
+              children: [
+                TextField(
+                  controller: textFieldController,
+                  focusNode: textFieldFocus,
+                  onTap: () => hideEmojiContainer(),
+                  style: TextStyle(color: Colors.white),
+                  onChanged: (val) {
+                    (val.length > 0 && val.trim() != "")
+                        ? setWritingTo(true)
+                        : setWritingTo(false);
+                  },
+                  maxLines: 4,
+                  minLines: 1,
+                  keyboardType: TextInputType.text,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    hintText: "Type a message",
+                    hintStyle: TextStyle(color: UniversalVariables.greyColor),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: EdgeInsets.fromLTRB(10, 5, 37, 5),
+                    fillColor: UniversalVariables.separatorColor,
+                    filled: true,
                   ),
-                )
-              : Expanded(child: _buildRecorder(track)),
+                ),
+                SizedBox(
+                  width: 15,
+                ),
+                IconButton(
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  onPressed: () {
+                    if (!showEmojiPicker) {
+                      hideKeyboard();
+                      showEmojiContainer();
+                    } else {
+                      showKeyboard();
+                      hideEmojiContainer();
+                    }
+                  },
+                  icon: Icon(Icons.face),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: 5,
+          ),
           isWriting
               ? Container()
-              : isTextWidgetShowing
-                  ? IconButton(
-                      icon: Icon(
-                        Icons.record_voice_over,
-                        size: 30,
-                      ),
-                      onPressed: () {
-                        // Navigator.of(context).push(
-                        //     MaterialPageRoute(builder: (context) => MainBody()));
-                        setState(() {
-                          isTextWidgetShowing = !isTextWidgetShowing;
-                        });
-                      },
-                    )
-                  : Container(),
+              : Icon(
+                  Icons.record_voice_over,
+                  size: 27,
+                ),
+          SizedBox(
+            width: 10,
+          ),
           isWriting
               ? Container()
               : GestureDetector(
                   onTap: () => pickImage(source: ImageSource.camera),
                   child: Icon(
                     Icons.camera_alt,
-                    size: 30,
+                    size: 27,
                   ),
                 ),
           isWriting
@@ -716,35 +645,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 )
               : Container()
         ],
-      ),
-    );
-  }
-
-  Widget _buildRecorder(Track track) {
-    return Container(
-      padding: EdgeInsets.only(right: 6),
-      child: RecorderPlaybackController(
-        child: Stack(
-          alignment: Alignment.centerRight,
-          children: [
-            SoundRecorderUI(
-              track,
-              showTrashCan: false,
-              pausedTitle: "",
-              stoppedTitle: "",
-              recordingTitle: "",
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  isTextWidgetShowing = !isTextWidgetShowing;
-                });
-              },
-              color: UniversalVariables.blackColor,
-              icon: Icon(Icons.keyboard),
-            )
-          ],
-        ),
       ),
     );
   }

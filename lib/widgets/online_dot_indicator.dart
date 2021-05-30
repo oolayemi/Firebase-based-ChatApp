@@ -10,8 +10,8 @@ class OnlineDotIndicator extends StatelessWidget {
 
   OnlineDotIndicator({required this.uid});
 
-  getColor(int? state) {
-    switch (Utils.numToState(state!)) {
+  getColor(int state) {
+    switch (Utils.numToState(state)) {
       case UserState.Offline:
         return Colors.red;
       case UserState.Online:
@@ -27,7 +27,7 @@ class OnlineDotIndicator extends StatelessWidget {
     return StreamBuilder<DocumentSnapshot>(
       stream: _authMethods.getUserStream(uid: uid),
       builder: (context, snapshot) {
-        FirebaseUser user;
+        FirebaseUser user = FirebaseUser();
         if (snapshot.hasData && snapshot.data!.data() != null) {
           user = FirebaseUser.fromMap(
               snapshot.data!.data() as Map<String, dynamic>);
@@ -39,7 +39,7 @@ class OnlineDotIndicator extends StatelessWidget {
           margin: EdgeInsets.only(right: 8, top: 8),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.green,
+            color: getColor(user.state ?? 0),
           ),
         );
       },

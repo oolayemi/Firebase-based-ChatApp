@@ -30,9 +30,11 @@ class ContactView extends StatelessWidget {
           );
         }
 
-        return Center(
-          child: CircularProgressIndicator(),
-        );
+        return SizedBox();
+
+        // return Center(
+        //   child: CircularProgressIndicator(),
+        // );
       },
     );
   }
@@ -48,41 +50,44 @@ class ViewLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
 
-    return CustomTile(
-      mini: false,
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                    receiver: contact,
-                  ))),
-      title: Text(
-        contact?.name ?? "..",
-        style: TextStyle(
-          color: Colors.white,
-          fontFamily: "Arial",
-          fontSize: 19,
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0, left: 10.0),
+      child: CustomTile(
+        mini: false,
+        onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatScreen(
+                      receiver: contact,
+                    ))),
+        title: Text(
+          contact?.name ?? "..",
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: "Arial",
+            fontSize: 19,
+          ),
         ),
-      ),
-      subtitle: LastMessageContainer(
-        stream: _chatMethods.fetchLastMessageBetween(
-          senderId: userProvider.getUser!.uid,
-          receiverId: contact!.uid,
+        subtitle: LastMessageContainer(
+          stream: _chatMethods.fetchLastMessageBetween(
+            senderId: userProvider.getUser!.uid,
+            receiverId: contact!.uid,
+          ),
         ),
-      ),
-      leading: Container(
-        constraints: BoxConstraints(maxHeight: 60, maxWidth: 60),
-        child: Stack(
-          children: [
-            CachedImage(
-              contact!.profilePhoto,
-              radius: 80,
-              isRound: true,
-            ),
-            OnlineDotIndicator(
-              uid: contact!.uid!,
-            ),
-          ],
+        leading: Container(
+          constraints: BoxConstraints(maxHeight: 55, maxWidth: 55),
+          child: Stack(
+            children: [
+              CachedImage(
+                contact!.profilePhoto,
+                radius: 80,
+                isRound: true,
+              ),
+              OnlineDotIndicator(
+                uid: contact!.uid!,
+              ),
+            ],
+          ),
         ),
       ),
     );

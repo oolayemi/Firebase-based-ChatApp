@@ -33,6 +33,8 @@ class CachedImage extends StatelessWidget {
             child: CachedNetworkImage(
               imageUrl: imageUrl!,
               fit: fit,
+              height: 150,
+              width: 150,
               placeholder: (context, url) =>
                   Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => Image.network(

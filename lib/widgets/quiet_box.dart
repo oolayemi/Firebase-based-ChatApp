@@ -9,7 +9,6 @@ class QuietBox extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 25),
         child: Container(
-          color: UniversalVariables.separatorColor,
           padding: EdgeInsets.symmetric(vertical: 35, horizontal: 25),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -20,24 +19,27 @@ class QuietBox extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 30,
+                  fontSize: 27,
                 ),
               ),
-              SizedBox(height: 25),
+              SizedBox(height: 23),
               Text(
                 "Search for your friends to start calling or chatting them😃",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   letterSpacing: 1.2,
                   fontWeight: FontWeight.normal,
-                  fontSize: 18,
+                  fontSize: 16,
                 ),
               ),
               SizedBox(height: 25),
               TextButton(
                 onPressed: () => Navigator.push(context,
                     MaterialPageRoute(builder: (context) => SearchScreen())),
-                child: Text("Search"),
+                child: Text(
+                  "Search",
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
             ],
           ),

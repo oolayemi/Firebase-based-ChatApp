@@ -22,9 +22,8 @@ class Utils {
   }
 
   static FutureOr<File> pickImage({required ImageSource source}) async {
-    PickedFile selectedImage =
-        await (ImagePicker().getImage(source: source) as FutureOr<PickedFile>);
-    File pickeeed = File(selectedImage.path);
+    PickedFile? selectedImage = await (ImagePicker().getImage(source: source));
+    File pickeeed = File(selectedImage!.path);
 
     return compressImage(pickeeed);
   }

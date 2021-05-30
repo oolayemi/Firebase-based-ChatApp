@@ -42,9 +42,9 @@ class _LoginScreenState extends State<LoginScreen> {
       highlightColor: UniversalVariables.senderColor,
       child: TextButton(
         child: Text(
-          "LOGIN",
+          "TAP TO LOGIN",
           style: TextStyle(
-            fontSize: 35,
+            fontSize: 30,
             fontWeight: FontWeight.w900,
             letterSpacing: 1.2,
           ),

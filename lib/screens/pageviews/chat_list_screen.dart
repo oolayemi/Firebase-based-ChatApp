@@ -26,21 +26,22 @@ class ChatListScreen extends StatelessWidget {
             Navigator.pushNamed(context, '/search_screen');
           },
         ),
-        IconButton(
-          icon: Icon(
-            Icons.more_vert,
-            color: Colors.white,
-          ),
-          onPressed: () {},
-        )
+        // IconButton(
+        //   icon: Icon(
+        //     Icons.more_vert,
+        //     color: Colors.white,
+        //   ),
+        //   onPressed: () {},
+        // )
       ],
-      leading: IconButton(
-        icon: Icon(
-          Icons.notifications,
-          color: Colors.white,
-        ),
-        onPressed: () {},
-      ),
+      leading: SizedBox(),
+      // leading: IconButton(
+      //   icon: Icon(
+      //     Icons.notifications,
+      //     color: Colors.white,
+      //   ),
+      //   onPressed: () {},
+      // ),
       centerTitle: true,
     );
   }

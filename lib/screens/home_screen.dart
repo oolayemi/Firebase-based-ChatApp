@@ -39,9 +39,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     pageController = PageController();
   }
 
+
   @override
   void dispose() {
     super.dispose();
+     _authMethods.setUserState(
+        userId: userProvider.getUser!.uid!,
+        userState: UserState.Offline,
+      );
     WidgetsBinding.instance!.removeObserver(this);
   }
 
@@ -127,15 +132,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ? UniversalVariables.lightBlueColor
                         : UniversalVariables.greyColor,
                   ),
-                  title: Text(
-                    "Chats",
-                    style: TextStyle(
-                      fontSize: _labelFontSize,
-                      color: (_page == 0)
-                          ? UniversalVariables.lightBlueColor
-                          : Colors.grey,
-                    ),
-                  ),
+                  label: "Chats",
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
@@ -144,15 +141,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ? UniversalVariables.lightBlueColor
                         : UniversalVariables.greyColor,
                   ),
-                  title: Text(
-                    "Video Call",
-                    style: TextStyle(
-                      fontSize: _labelFontSize,
-                      color: (_page == 1)
-                          ? UniversalVariables.lightBlueColor
-                          : Colors.grey,
-                    ),
-                  ),
+                  label: "Video Call",
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
@@ -161,15 +150,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ? UniversalVariables.lightBlueColor
                         : UniversalVariables.greyColor,
                   ),
-                  title: Text(
-                    "Contacts",
-                    style: TextStyle(
-                      fontSize: _labelFontSize,
-                      color: (_page == 2)
-                          ? UniversalVariables.lightBlueColor
-                          : Colors.grey,
-                    ),
-                  ),
+                  label: "Contacts",
                 ),
               ],
               onTap: navigationTapped,
