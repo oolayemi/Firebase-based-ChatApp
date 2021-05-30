@@ -11,6 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:placeholder/resources/auth_methods.dart';
+import 'package:placeholder/resources/chat_methods.dart';
+import 'package:placeholder/resources/storage_methods.dart';
 import 'package:placeholder/screens/chatscreens/widgets/voice_record.dart';
 import 'package:placeholder/utils/call_utilities.dart';
 import 'package:placeholder/utils/permissions.dart';
@@ -19,7 +22,6 @@ import '../../enum/view_state.dart';
 import '../../models/firebase_user.dart';
 import '../../models/message.dart';
 import '../../provider/image_upload_provider.dart';
-import '../../resources/firebase_repository.dart';
 import '../../screens/chatscreens/widgets/cached_image.dart';
 import '../../screens/chatscreens/widgets/contact_page.dart';
 import '../../utils/unversal_variables.dart';
@@ -53,7 +55,9 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   TextEditingController textFieldController = TextEditingController();
-  FirebaseRepository _repository = FirebaseRepository();
+  AuthMethods _authMethods = AuthMethods();
+  ChatMethods _chatMethods = ChatMethods();
+  StorageMethods _storageMethods = StorageMethods();
 
   PermissionStatus? permissionStatus;
   FocusNode textFieldFocus = FocusNode();
@@ -93,7 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {});
     });
 
-    _repository.getCurrentUser().then((user) {
+    _authMethods.getCurrentUser().then((user) {
       _currentUserId = user!.uid;
 
       setState(() {
@@ -731,7 +735,11 @@ class _ChatScreenState extends State<ChatScreen> {
               recordingTitle: "",
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  isTextWidgetShowing = !isTextWidgetShowing;
+                });
+              },
               color: UniversalVariables.blackColor,
               icon: Icon(Icons.keyboard),
             )
@@ -758,12 +766,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
     textFieldController.text = "";
 
-    _repository.addMessageToDb(_message, sender, widget.receiver);
+    _chatMethods.addMessageToDb(_message, sender, widget.receiver);
   }
 
   pickImage({required ImageSource source}) async {
     File selectedImage = await Utils.pickImage(source: source);
-    _repository.uploadImage(
+    _storageMethods.uploadImage(
       image: selectedImage,
       receiverId: widget.receiver!.uid,
       senderId: _currentUserId,
@@ -812,7 +820,7 @@ class _ChatScreenState extends State<ChatScreen> {
     String? receiverId,
     String? senderId,
   }) {
-    _repository.sendContact(contact, senderId, receiverId);
+    _chatMethods.sendContact(contact, senderId, receiverId);
   }
 }
 

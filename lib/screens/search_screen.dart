@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:placeholder/resources/auth_methods.dart';
 import '../models/firebase_user.dart';
-import '../resources/firebase_repository.dart';
 import '../utils/unversal_variables.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import '../widgets/custom_tile.dart';
@@ -14,7 +14,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  FirebaseRepository _repository = FirebaseRepository();
+  AuthMethods _authMethods = AuthMethods();
 
   List<FirebaseUser>? userList;
   String query = "";
@@ -23,8 +23,8 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _repository.getCurrentUser().then((User? user) {
-      _repository.fetchAllUsers(user).then((List<FirebaseUser> list) {
+    _authMethods.getCurrentUser().then((User? user) {
+      _authMethods.fetchAllUsers(user).then((List<FirebaseUser> list) {
         setState(() {
           userList = list;
         });

@@ -3,9 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:placeholder/provider/user_provider.dart';
+import 'package:placeholder/resources/auth_methods.dart';
 
 import '../provider/image_upload_provider.dart';
-import 'resources/firebase_repository.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/search_screen.dart';
@@ -25,7 +25,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  FirebaseRepository _repository = FirebaseRepository();
+  final AuthMethods _authMethods = AuthMethods();
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
         theme:
             ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
         home: FutureBuilder(
-          future: _repository.getCurrentUser(),
+          future: _authMethods.getCurrentUser(),
           builder: (context, AsyncSnapshot<User?> snapshot) {
             if (snapshot.hasData) {
               return HomeScreen();
