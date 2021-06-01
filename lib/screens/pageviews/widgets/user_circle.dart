@@ -1,4 +1,3 @@
-import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:placeholder/provider/user_provider.dart';
 import 'package:placeholder/screens/pageviews/widgets/user_details_container.dart';

@@ -13,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:placeholder/resources/auth_methods.dart';
 import 'package:placeholder/resources/chat_methods.dart';
 import 'package:placeholder/resources/storage_methods.dart';
+import 'package:placeholder/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:placeholder/utils/call_utilities.dart';
 import 'package:placeholder/utils/permissions.dart';
 import '../../constants/strings.dart';
@@ -94,30 +95,32 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     _imageUploadProvider = Provider.of<ImageUploadProvider>(context);
 
-    return Scaffold(
-      backgroundColor: UniversalVariables.blackColor,
-      appBar: customAppBar(context),
-      body: Column(
-        children: <Widget>[
-          Flexible(
-            child: messageList(),
-          ),
-          _imageUploadProvider.getViewState == ViewState.LOADING
-              ? Container(
-                  margin: EdgeInsets.only(right: 15),
-                  alignment: Alignment.centerRight,
-                  child: CircularProgressIndicator(),
-                )
-              : Container(),
-          chatControls(),
-          showEmojiPicker
-              ? Flexible(
-                  child: Container(
-                    child: emojiContainer(),
-                  ),
-                )
-              : Container()
-        ],
+    return PickupLayout(
+      scaffold: Scaffold(
+        backgroundColor: UniversalVariables.blackColor,
+        appBar: customAppBar(context),
+        body: Column(
+          children: <Widget>[
+            Flexible(
+              child: messageList(),
+            ),
+            _imageUploadProvider.getViewState == ViewState.LOADING
+                ? Container(
+                    margin: EdgeInsets.only(right: 15),
+                    alignment: Alignment.centerRight,
+                    child: CircularProgressIndicator(),
+                  )
+                : Container(),
+            chatControls(),
+            showEmojiPicker
+                ? Flexible(
+                    child: Container(
+                      child: emojiContainer(),
+                    ),
+                  )
+                : Container()
+          ],
+        ),
       ),
     );
   }
@@ -702,15 +705,25 @@ class _ChatScreenState extends State<ChatScreen> {
           onPressed: () async =>
               await Permissions.cameraAndMicrophonePermissionsGranted()
                   ? CallUtils.dial(
-                      from: sender!, to: widget.receiver!, context: context)
+                      from: sender!,
+                      to: widget.receiver!,
+                      isVideoCall: true,
+                      context: context)
                   : {},
         ),
-        // IconButton(
-        //   icon: Icon(
-        //     Icons.phone,
-        //   ),
-        //   onPressed: () {},
-        // )
+        IconButton(
+          icon: Icon(
+            Icons.phone,
+          ),
+          onPressed: () async =>
+              await Permissions.cameraAndMicrophonePermissionsGranted()
+                  ? CallUtils.dial(
+                      from: sender!,
+                      to: widget.receiver!,
+                      isVideoCall: false,
+                      context: context)
+                  : {},
+        )
       ],
     );
   }

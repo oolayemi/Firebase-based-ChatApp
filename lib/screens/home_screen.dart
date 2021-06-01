@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:placeholder/enum/user_state.dart';
 import 'package:placeholder/resources/auth_methods.dart';
+import 'package:placeholder/resources/local_db/repository/log_repository.dart';
+import 'package:placeholder/screens/contactscreen/contact_screen.dart';
+import 'package:placeholder/screens/logs/log_screen.dart';
 import '../provider/user_provider.dart';
 import '../screens/callscreens/pickup/pickup_layout.dart';
 import '../screens/pageviews/chat_list_screen.dart';
@@ -32,6 +35,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         userId: userProvider.getUser!.uid!,
         userState: UserState.Online,
       );
+
+      LogRepository.init(
+        isHive: false,
+        dbName: userProvider.getUser!.uid!,
+      );
     });
 
     WidgetsBinding.instance!.addObserver(this);
@@ -39,14 +47,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     pageController = PageController();
   }
 
-
   @override
   void dispose() {
     super.dispose();
-     _authMethods.setUserState(
-        userId: userProvider.getUser!.uid!,
-        userState: UserState.Offline,
-      );
+    _authMethods.setUserState(
+      userId: userProvider.getUser!.uid!,
+      userState: UserState.Offline,
+    );
     WidgetsBinding.instance!.removeObserver(this);
   }
 
@@ -98,8 +105,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    double _labelFontSize = 10;
-
     return PickupLayout(
       scaffold: Scaffold(
         backgroundColor: UniversalVariables.blackColor,
@@ -108,16 +113,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             Container(
               child: ChatListScreen(),
             ),
-            Center(
-                child:
-                    Text("Call Logs", style: TextStyle(color: Colors.white))),
-            Center(
-                child: Text("Contact Screen",
-                    style: TextStyle(color: Colors.white))),
+            Container(
+              child: LogScreen(),
+            ),
+            Container(
+              child: ContactScreen(),
+            ),
           ],
           controller: pageController,
           onPageChanged: onPageChanged,
-          // physics: NeverScrollableScrollPhysics(),
+          physics: NeverScrollableScrollPhysics(),
         ),
         bottomNavigationBar: Container(
           child: Padding(
@@ -136,16 +141,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
-                    Icons.video_call,
+                    Icons.call,
                     color: (_page == 1)
                         ? UniversalVariables.lightBlueColor
                         : UniversalVariables.greyColor,
                   ),
-                  label: "Video Call",
+                  label: "Call",
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
-                    Icons.contact_phone,
+                    Icons.contacts,
                     color: (_page == 2)
                         ? UniversalVariables.lightBlueColor
                         : UniversalVariables.greyColor,

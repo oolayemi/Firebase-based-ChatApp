@@ -38,7 +38,7 @@ class CustomTile extends StatelessWidget {
             Expanded(
                 child: Container(
               margin: EdgeInsets.only(left: mini ? 10 : 15),
-              padding: EdgeInsets.symmetric(vertical: mini ? 3 : 20),
+              padding: EdgeInsets.symmetric(vertical: mini ? 12 : 20),
               decoration: BoxDecoration(
                   border: Border(
                       bottom: BorderSide(
@@ -52,10 +52,7 @@ class CustomTile extends StatelessWidget {
                       title,
                       SizedBox(height: 5),
                       Row(
-                        children: [
-                          icon ?? Container(),
-                          subtitle
-                        ],
+                        children: [icon ?? Container(), subtitle],
                       )
                     ],
                   ),

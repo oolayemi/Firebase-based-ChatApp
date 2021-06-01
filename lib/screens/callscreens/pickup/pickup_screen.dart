@@ -3,6 +3,7 @@ import 'package:placeholder/constants/strings.dart';
 import 'package:placeholder/models/call.dart';
 import 'package:placeholder/models/log.dart';
 import 'package:placeholder/resources/call_methods.dart';
+import 'package:placeholder/resources/local_db/repository/log_repository.dart';
 //import 'package:placeholder/resources/local_db/repository/log_repository.dart';
 import 'package:placeholder/screens/callscreens/call_screen.dart';
 import 'package:placeholder/screens/chatscreens/widgets/cached_image.dart';
@@ -34,9 +35,10 @@ class _PickupScreenState extends State<PickupScreen> {
       receiverPic: widget.call.receiverPic,
       timestamp: DateTime.now().toString(),
       callStatus: callStatus,
+      isVideoCall: widget.call.isVideoCall.toString(),
     );
 
-    //LogRepository.addLogs(log);
+    LogRepository.addLogs(log);
   }
 
   @override
@@ -94,14 +96,14 @@ class _PickupScreenState extends State<PickupScreen> {
                     icon: Icon(Icons.call),
                     color: Colors.green,
                     onPressed: () async {
-                      //isCallMissed = false;
-                      //addToLocalStorage(callStatus: CALL_STATUS_RECEIVED);
+                      isCallMissed = false;
+                      addToLocalStorage(callStatus: CALL_STATUS_RECEIVED);
                       await Permissions.cameraAndMicrophonePermissionsGranted()
                           ? Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    CallScreen(call: widget.call),
+                                    CallScreen(call: widget.call,),
                               ),
                             )
                           : {};

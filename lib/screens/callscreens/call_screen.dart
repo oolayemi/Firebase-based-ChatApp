@@ -8,6 +8,7 @@ import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:firebase_auth/firebase_auth.dart' as CurrentUser;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:placeholder/utils/unversal_variables.dart';
 import 'package:provider/provider.dart';
 import 'package:placeholder/configs/agora_configs.dart';
 import 'package:placeholder/models/call.dart';
@@ -123,7 +124,9 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> _initAgoraRtcEngine() async {
     _engine = await RtcEngine.create(APP_ID);
-    await _engine.enableVideo();
+    widget.call.isVideoCall!
+        ? await _engine.enableVideo()
+        : await _engine.disableVideo();
     // await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
     await _engine.setClientRole(role);
   }
@@ -362,18 +365,20 @@ class _CallScreenState extends State<CallScreen> {
             fillColor: Colors.redAccent,
             padding: const EdgeInsets.all(15.0),
           ),
-          RawMaterialButton(
-            onPressed: _onSwitchCamera,
-            child: Icon(
-              Icons.switch_camera,
-              color: Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.white,
-            padding: const EdgeInsets.all(12.0),
-          )
+          widget.call.isVideoCall!
+              ? RawMaterialButton(
+                  onPressed: _onSwitchCamera,
+                  child: Icon(
+                    Icons.switch_camera,
+                    color: Colors.blueAccent,
+                    size: 20.0,
+                  ),
+                  shape: CircleBorder(),
+                  elevation: 2.0,
+                  fillColor: Colors.white,
+                  padding: const EdgeInsets.all(12.0),
+                )
+              : SizedBox()
         ],
       ),
     );
@@ -397,7 +402,24 @@ class _CallScreenState extends State<CallScreen> {
       body: Center(
         child: Stack(
           children: <Widget>[
-            _viewRows(),
+            widget.call.isVideoCall!
+                ? _viewRows()
+                : Container(
+                    color: UniversalVariables.blackColor,
+                    child: Center(
+                      child: widget.call.callerId ==
+                              CurrentUser.FirebaseAuth.instance.currentUser!.uid
+                          ? Image.network(
+                              widget.call.receiverPic!,
+                              width: MediaQuery.of(context).size.width * 0.9,
+                              fit: BoxFit.fill,
+                            )
+                          : Image.network(
+                              widget.call.callerPic!,
+                              width: MediaQuery.of(context).size.width * 0.9,
+                              fit: BoxFit.fill,
+                            ),
+                    )),
             // _panel(),
             _toolbar(),
           ],

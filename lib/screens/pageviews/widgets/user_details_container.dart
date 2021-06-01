@@ -4,7 +4,6 @@ import 'package:placeholder/provider/user_provider.dart';
 import 'package:placeholder/resources/auth_methods.dart';
 import 'package:placeholder/screens/chatscreens/widgets/cached_image.dart';
 import 'package:placeholder/screens/login_screen.dart';
-import 'package:placeholder/screens/pageviews/widgets/shimming_logo.dart';
 import 'package:placeholder/widgets/appbar.dart';
 import 'package:provider/provider.dart';
 
